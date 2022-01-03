@@ -12,7 +12,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var displayLabel: UILabel!
     
-    private var isFinishedTypingNumber: Bool = true
+    private var isDoneTypingNumber: Bool = true
     
     private var displayValue: Double {
         get {
@@ -22,23 +22,23 @@ class ViewController: UIViewController {
             return number
         }
         set {
-            displayLabel.text = String(newValue)
+            displayLabel.text = Calculator.isInt(newValue) ? String(Int(newValue)) : String(newValue)
         }
     }
     
-    private var calculator = CalculatorLogic()
+    private var calculator = Calculator()
     
     @IBAction func calcButtonPressed(_ sender: UIButton) {
-        isFinishedTypingNumber = true
+        isDoneTypingNumber = true
         
         if let calcMethod = sender.currentTitle {
-            if calcMethod == "AC" {
-                displayLabel.text = "0"
-            } else {
-                calculator.setNumber(displayValue )
-                if let result = calculator.calculate(symbol: calcMethod) {
-                    displayValue = result
-                }
+            calculator.setNumber(displayValue )
+            if let result = calculator.calculate(symbol: calcMethod) {
+                displayValue = result
+            }
+            
+            if calcMethod == "+/-" {
+                isDoneTypingNumber = false
             }
         }
             
@@ -47,14 +47,16 @@ class ViewController: UIViewController {
     
     @IBAction func numButtonPressed(_ sender: UIButton) {
         if let numValue = sender.currentTitle {
-            print(numValue)
-            if isFinishedTypingNumber {
+            if isDoneTypingNumber {
+                isDoneTypingNumber = false
+                if numValue == "." {
+                    displayLabel.text = "0."
+                    return
+                }
                 displayLabel.text = numValue
-                isFinishedTypingNumber = false
             } else {
                 if numValue == "." {
-                    let isInt = floor(displayValue) == displayValue
-                    if !isInt {
+                    if !Calculator.isInt(displayValue) {
                         return
                     }
                 }
@@ -62,6 +64,7 @@ class ViewController: UIViewController {
             }
         }
     }
+
 
 }
 
